@@ -25,12 +25,16 @@ const app = express();
 app.use(morgan('dev'));
 
 // CORS
-app.use(cors({ 
-  origin: process.env.CLIENT_URL || ['http://localhost:3000', 'http://localhost:3001'],
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With']
+};
+
+app.use(cors(corsOptions));
+
+
 
 
 
@@ -45,24 +49,9 @@ app.use(passport.initialize());
 app.get('/api/health', (req, res) => res.status(200).json({ message: 'Server is running!' }));
 
 // **PERBAIKAN: JSON parser untuk semua route KECUALI /api/projects yang perlu multipart**
-app.use((req, res, next) => {
-  // Skip JSON parsing untuk project routes yang upload file
-  if (req.path === '/api/projects' && req.method === 'POST') {
-    return next();
-  }
-  if (req.path.match(/^\/api\/projects\/[^/]+$/) && req.method === 'PUT') {
-    return next();
-  }
-  if (req.path.match(/^\/api\/projects\/[^/]+$/) && req.method === 'GET') {
-  return next();
-}
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  
-  // Parse JSON untuk route lainnya
-  express.json({ limit: '10mb' })(req, res, () => {
-    express.urlencoded({ extended: true, limit: '10mb' })(req, res, next);
-  });
-});
 
 // Routes
 app.use('/api/auth', authRoutes);
