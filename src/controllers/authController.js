@@ -32,11 +32,12 @@ const register = async (req, res) => {
     const token = generateToken(user._id);
 
     res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 30
-    });
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // true di prod
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 1000 * 60 * 60 * 24 * 30
+});
+
 
     res.status(201).json({
       success: true,
@@ -76,11 +77,12 @@ const login = async (req, res) => {
     const token = generateToken(user._id);
 
     res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 30
-    });
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // true di prod
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 1000 * 60 * 60 * 24 * 30
+});
+
 
     res.json({
   success: true,
@@ -128,11 +130,12 @@ const googleCallback = async (req, res) => {
     }
 
      res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 30 // 30 hari
-    });
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // true di prod
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 1000 * 60 * 60 * 24 * 30
+});
+
 
     // Login normal, return token
     res.status(200).json({
