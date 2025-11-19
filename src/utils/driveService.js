@@ -1,36 +1,26 @@
+// drive.js
 const { google } = require("googleapis");
 const stream = require("stream");
 
 /**
- * Initialize Google Drive API from ENV JSON
+ * Initialize Google Drive API with OAuth2 user flow
  */
 const getDriveClient = () => {
   try {
-    
-    const credentials = {
-      type: "service_account",
-      project_id: process.env.GOOGLE_PROJECT_ID,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n').trim(), // Important: replace \\n with actual newlines
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      client_id: process.env.GOOGLE_CLIENT_IDD,
-      auth_uri: "https://accounts.google.com/o/oauth2/auth",
-      token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-      client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
-      universe_domain: "googleapis.com"
-    };
-
-    // Validate required fields
-    if (!credentials.private_key || !credentials.client_email) {
-      throw new Error("Missing required Google Drive credentials");
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REFRESH_TOKEN) {
+      throw new Error("Missing Google OAuth environment variables (CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN)");
     }
 
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ["https://www.googleapis.com/auth/drive.file"]
+    const oAuth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET
+    );
+
+    oAuth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
     });
 
-    return google.drive({ version: "v3", auth });
+    return google.drive({ version: "v3", auth: oAuth2Client });
   } catch (error) {
     console.error("Error initializing Google Drive client:", error);
     throw error;
